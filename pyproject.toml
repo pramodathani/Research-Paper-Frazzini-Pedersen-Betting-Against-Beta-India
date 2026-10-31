@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "frazzini-pedersen-betting-against-beta-india"
+version = "2026.10.31"
+description = "Frazzini and Pedersen (2014) Betting Against Beta, recreated for Indian shares on NSE."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.14"
+authors = [
+    { name = "Pramod Athani", email = "pramod.athani@gmail.com" },
+]
+keywords = [
+    "betting against beta",
+    "low beta anomaly",
+    "low volatility",
+    "factor investing",
+    "NSE",
+    "India",
+    "replication",
+]
+dependencies = [
+    "numpy",
+    "pandas",
+    "pyarrow",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+]
+live = [
+    "tradingmachine",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "src/frazzini_pedersen_betting_against_beta_india",
+]
+
+[tool.ruff]
+line-length = 80
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+]

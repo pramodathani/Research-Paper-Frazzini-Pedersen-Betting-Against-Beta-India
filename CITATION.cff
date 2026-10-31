@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use this replication, please cite it as below, and cite the original paper."
+title: "Betting Against Beta in India: a recreation of Frazzini and Pedersen (2014) for NSE shares"
+authors:
+  - family-names: Athani
+    given-names: Pramod
+    email: pramod.athani@gmail.com
+    orcid: "https://orcid.org/0009-0002-0270-7045"
+    website: "https://www.linkedin.com/in/pramod-athani-b65b922a/"
+repository-code: "https://github.com/pramodathani/Research-Paper-Frazzini-Pedersen-Betting-Against-Beta-India"
+license: MIT
+version: 0.1.0
+date-released: 2026-10-31
+references:
+  - type: article
+    authors:
+      - family-names: Frazzini
+        given-names: Andrea
+      - family-names: Pedersen
+        given-names: Lasse Heje
+    title: "Betting against beta"
+    journal: "Journal of Financial Economics"
+    volume: 111
+    issue: 1
+    start: 1
+    end: 25
+    year: 2014
+    doi: "10.1016/j.jfineco.2013.10.005"
