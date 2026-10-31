@@ -25,6 +25,7 @@ dependencies = [
     "numpy",
     "pandas",
     "pyarrow",
+    "requests",
 ]
 
 [project.optional-dependencies]
@@ -42,6 +43,10 @@ packages = [
 
 [tool.ruff]
 line-length = 80
+
+[tool.ruff.lint]
+# The downloaders run on the user's own India-time machine, so the local date is right.
+ignore = ["DTZ011"]
 
 [tool.ruff.format]
 quote-style = "single"
