@@ -11,3 +11,4 @@ __pycache__/
 scratch/
 results/review/inputs/
 results/review/bab_*/
+results/grid_series.parquet

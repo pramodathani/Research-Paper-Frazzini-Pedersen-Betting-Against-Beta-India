@@ -49,6 +49,9 @@ Run the tests with `python -m pytest`. They need no network.
 
 ## How to reproduce
 
+`results/grid_series.parquet` (the 864 variants' monthly series, 7 MB) is not in the repository; `run_grid` rebuilds it, and the companion page's `site/data/grid_*.json` hold the same series.
+
+
 ```bash
 python -m venv .venv && .venv/bin/pip install -e ".[test]"
 .venv/bin/pip install -e /path/to/data-and-analytics --no-deps   # the shared backtesting engine
