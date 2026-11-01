@@ -30,9 +30,7 @@ def test_ties_share_the_average_rank():
 
 def test_bab_return_with_constant_returns():
     betas = pd.Series([0.5, 0.8, 1.0, 1.2, 1.6], index=list('abcde'))
-    returns = pd.Series(
-        [0.01, 0.02, 0.03, 0.04, 0.05], index=list('abcde')
-    )
+    returns = pd.Series([0.01, 0.02, 0.03, 0.04, 0.05], index=list('abcde'))
     weights = RankWeights()
     low, high = weights.split(betas)
     beta_low = (low * betas).sum()
@@ -53,7 +51,9 @@ def test_the_factor_is_beta_neutral():
 
 
 def test_groups_cut_evenly():
-    betas = pd.Series(range(20), index=[f's{i}' for i in range(20)], dtype=float)
+    betas = pd.Series(
+        range(20), index=[f's{i}' for i in range(20)], dtype=float
+    )
     groups = RankWeights().groups(betas, 10)
     assert groups.value_counts().eq(2).all()
     assert groups['s0'] == 1 and groups['s19'] == 10
