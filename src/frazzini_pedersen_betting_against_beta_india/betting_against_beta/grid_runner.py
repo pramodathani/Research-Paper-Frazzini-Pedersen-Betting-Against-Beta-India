@@ -2,6 +2,7 @@
 
 import itertools
 from collections.abc import Iterable
+from typing import ClassVar
 
 import pandas as pd
 
@@ -27,7 +28,7 @@ class GridRunner:
         impacts: Market impact per side for each universe.
     """
 
-    IMPACTS = {'A': 0.003, 'B': 0.001, 'C': 0.001}
+    IMPACTS: ClassVar[dict[str, float]] = {'A': 0.003, 'B': 0.001, 'C': 0.001}
 
     def __init__(self, study: BabStudy) -> None:
         """Keeps the study.
