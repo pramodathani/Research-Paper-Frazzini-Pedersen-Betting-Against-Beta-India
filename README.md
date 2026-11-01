@@ -76,6 +76,10 @@ Exchange data are downloaded into the git-ignored `data/` folder and are not red
 
 The study keeps no private schema or collection; everything can be rebuilt from `results/`.
 
+## Use of AI
+
+This study was carried out with AI research assistants working under the author's direction. The author is responsible for its content.
+
 ## Citation
 
 See `CITATION.cff`. Please also cite the original paper:
