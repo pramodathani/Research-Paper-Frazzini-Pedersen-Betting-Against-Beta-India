@@ -107,6 +107,26 @@ class Universes:
             result['C'] = self._futures_universe(dates, futures, result['A'])
         return result
 
+    def median_traded_value(self, dates: pd.DatetimeIndex) -> pd.DataFrame:
+        """Gives each share's median daily traded value over the past year.
+
+        Args:
+            dates (pd.DatetimeIndex): Formation days.
+
+        Returns:
+            pd.DataFrame: Rupees, days without trading counting as zero.
+        """
+        positions = self.panel.returns.index.get_indexer(dates)
+        values = self.panel.traded_value.to_numpy()
+        rows = np.zeros((len(dates), values.shape[1]))
+        for row, position in enumerate(positions):
+            start = max(position - self.window_days + 1, 0)
+            window = np.nan_to_num(values[start : position + 1], nan=0.0)
+            rows[row] = np.median(window, axis=0)
+        return pd.DataFrame(
+            rows, index=dates, columns=self.panel.returns.columns
+        )
+
     def _futures_universe(
         self,
         dates: pd.DatetimeIndex,
