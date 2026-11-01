@@ -2,7 +2,6 @@
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from frazzini_pedersen_betting_against_beta_india.betting_against_beta.bab_study import (
     BabStudy,

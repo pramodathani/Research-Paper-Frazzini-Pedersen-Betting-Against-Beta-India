@@ -79,7 +79,7 @@ class DecileTable:
             series[name] = self._cut(run['gross'], start)
             rows[name] = runner.score(series[name], True)
             rows[name]['ex_ante_beta'] = self._ex_ante(builder, weights, start)
-        bab_weights, sides = builder.bab(holding_months)
+        bab_weights, _ = builder.bab(holding_months)
         gross = runner.run(bab_weights, 'none')
         net = runner.run(bab_weights, 'futures')
         series['BAB'] = self._cut(gross['gross'], start)
