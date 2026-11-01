@@ -123,9 +123,45 @@ class StrategyRunner:
                 self.cost_model('futures'),
             ).run()
             frame['gross'] = frame['gross'] + overlay.gross_returns.fillna(0.0)
-            frame['cost'] = frame['cost'] + overlay.costs.fillna(0.0)
+            frame['cost'] = (
+                frame['cost']
+                + overlay.costs.fillna(0.0)
+                + self.roll_cost(
+                    extra_weights.loc[months], overlay.turnover().fillna(0.0)
+                ).fillna(0.0)
+            )
+        if cost_kind == 'futures':
+            frame['cost'] = frame['cost'] + self.roll_cost(
+                weights.loc[months, columns], frame['turnover']
+            )
         frame['net'] = frame['gross'] - frame['cost']
         return frame.dropna(subset=['gross'])
+
+    def roll_cost(
+        self,
+        weights: pd.DataFrame,
+        turnover: pd.Series,
+    ) -> pd.Series:
+        """Charges the monthly roll of futures positions that are kept.
+
+        Stock and index futures expire every month, so a position held from
+        one month to the next is closed and opened again. The part of the
+        gross notional not already traded in the rebalance, gross notional
+        minus turnover, pays a sell and a buy at the futures rates.
+
+        Args:
+            weights (pd.DataFrame): The futures weights by month.
+            turnover (pd.Series): Bought plus sold by month.
+
+        Returns:
+            pd.Series: The roll cost by month, as a fraction of capital.
+        """
+        model = FuturesCosts(self.impact_cost)
+        gross = weights.abs().sum(axis=1)
+        kept = (gross - turnover.reindex(gross.index).fillna(0.0)).clip(
+            lower=0.0
+        )
+        return kept * (model.buy_rate() + model.sell_rate())
 
     def score(
         self,

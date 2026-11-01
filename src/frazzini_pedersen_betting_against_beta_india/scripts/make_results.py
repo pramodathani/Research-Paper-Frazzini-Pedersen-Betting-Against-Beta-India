@@ -98,7 +98,7 @@ class MakeResultsApplication:
         self.save(pd.concat(summary, names=['universe']), 'bab_summary')
         rows = {}
         for fee in (0.0, BORROW_BASE, 0.10):
-            for universe in ('A', 'B', 'C'):
+            for universe in ('A', 'B'):
                 table, _ = DecileTable(study, fee).run(
                     universe, 'equal', impact_cost=IMPACT[universe]
                 )
@@ -122,6 +122,7 @@ class MakeResultsApplication:
         self.save(tables.beta_windows('B'), 'beta_windows_B')
         self.save(tables.size_terciles('A'), 'size_terciles_A')
         self.save(tables.size_terciles('B'), 'size_terciles_B')
+        self.save(tables.liquidity_screens('A'), 'liquidity_screens_A')
         for universe in ('A', 'B', 'C'):
             series = tables.bab_series(universe)
             edges = ('2000-01', '2006-01', '2013-01', '2020-01')
@@ -181,17 +182,24 @@ class MakeResultsApplication:
         bench.index = bench.index.astype(str)
         self.save(bench, 'benchmarks_monthly')
         common = {}
-        for name, run in runs.items():
-            excess = name in ('T1', 'T2')
-            start = pd.Period('2006-01', freq='M')
-            series = run['net'][run['net'].index >= start]
-            common[f'{name} after costs, 2006 on'] = runner.score(
-                series, excess
-            )
-        for label, returns in monthly.items():
-            series = returns[returns.index >= pd.Period('2006-01', freq='M')]
-            common[f'{label}, 2006 on'] = runner.score(series, False)
-        self.save(pd.DataFrame(common).T, 'tradeable_vs_benchmarks_2006')
+        for start in ('1999-04', '2006-01'):
+            first = pd.Period(start, freq='M')
+            for name, run in runs.items():
+                excess = name in ('T1', 'T2')
+                if excess and first < pd.Period('2005-02', freq='M'):
+                    continue
+                for label, column in (('before', 'gross'), ('after', 'net')):
+                    series = run[column][run[column].index >= first]
+                    common[f'from {start}: {name} {label} costs'] = (
+                        runner.score(series, excess)
+                    )
+            for label, returns in monthly.items():
+                if returns.index.min() > first:
+                    continue
+                series = returns[returns.index >= first]
+                series = series[series.index <= runs['L1'].index.max()]
+                common[f'from {start}: {label}'] = runner.score(series, False)
+        self.save(pd.DataFrame(common).T, 'tradeable_vs_benchmarks')
 
     def stress(self, study: BabStudy) -> None:
         """Runs the delisting stress.

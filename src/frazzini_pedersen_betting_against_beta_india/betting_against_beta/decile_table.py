@@ -86,15 +86,17 @@ class DecileTable:
         rows['BAB'] = runner.score(series['BAB'], True)
         rows['BAB']['ex_ante_beta'] = 0.0
         short = -bab_weights.clip(upper=0).sum(axis=1)
-        drag = short * self.borrow_fee_annual / 12.0
+        long = bab_weights.clip(lower=0).sum(axis=1)
+        active = (long > 0) & (short > 0)
+        fee = 0.0 if universe == 'C' else self.borrow_fee_annual
+        drag = short * fee / 12.0
         after = net['net'] - drag.reindex(net.index).fillna(0.0)
         series['BAB after costs'] = self._cut(after, start)
         rows['BAB after costs'] = runner.score(series['BAB after costs'], True)
-        rows['BAB']['long'] = float(
-            bab_weights.clip(lower=0).sum(axis=1).mean()
-        )
-        rows['BAB']['short'] = float(short.mean())
+        rows['BAB']['long'] = float(long[active].mean())
+        rows['BAB']['short'] = float(short[active].mean())
         rows['BAB']['turnover'] = float(gross['turnover'].mean())
+        rows['BAB after costs']['borrow_fee'] = fee
         return pd.DataFrame(rows).T, series
 
     def _cut(self, series: pd.Series, start: str | None) -> pd.Series:

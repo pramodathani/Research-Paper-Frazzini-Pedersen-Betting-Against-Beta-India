@@ -136,8 +136,8 @@ class ExtraTables:
         table = table[table.index >= bab.index.min()]
         years = table.index.year
         compounded = (1.0 + table).groupby(years).prod(min_count=1) - 1.0
-        counts = table.groupby(years).count()
-        return compounded.where(counts == 12) if False else compounded
+        compounded['months'] = table['BAB'].groupby(years).count()
+        return compounded
 
     def sub_periods(
         self,
@@ -221,6 +221,37 @@ class ExtraTables:
             inside = (ranks > low) & (ranks <= high)
             series = self.bab_series(universe, eligible=inside & base)
             rows[f'tercile {number}'] = runner.score(series, True)
+        return pd.DataFrame(rows).T
+
+    def liquidity_screens(
+        self,
+        universe: str = 'A',
+        cuts: tuple[float, ...] = (0.0, 1 / 3, 0.5),
+        minimum_prices: tuple[float, ...] = (2.0, 10.0),
+    ) -> pd.DataFrame:
+        """Scores BAB after dropping the least-traded or cheapest shares.
+
+        Args:
+            universe (str): The universe screened.
+            cuts (tuple[float, ...]): Fractions of the universe, by median
+                traded value, dropped from the bottom.
+            minimum_prices (tuple[float, ...]): Lowest last close allowed.
+
+        Returns:
+            pd.DataFrame: One row per screen.
+        """
+        study = self.study
+        base = study.universes[universe]
+        ranks = study.median_value.where(base).rank(axis=1, pct=True)
+        closes = study.panel.close.ffill(limit=10).reindex(study.dates)
+        runner = study.runner(0.0)
+        rows = {}
+        for cut in cuts:
+            for price in minimum_prices:
+                eligible = base & (ranks > cut) & (closes >= price)
+                series = self.bab_series(universe, eligible=eligible)
+                label = f'drop bottom {cut:.0%} by traded value, price >= Rs {price:g}'
+                rows[label] = runner.score(series, True)
         return pd.DataFrame(rows).T
 
     def beta_compression(
