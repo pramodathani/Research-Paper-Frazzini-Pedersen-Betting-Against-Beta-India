@@ -1,10 +1,9 @@
 """Tests of the grid runner on a made-up market."""
 
-from tests.test_end_to_end import make_study
-
 from frazzini_pedersen_betting_against_beta_india.betting_against_beta.grid_runner import (
     GridRunner,
 )
+from tests.test_end_to_end import make_study
 
 
 def test_grid_counts_and_columns():
@@ -33,7 +32,7 @@ def test_the_paper_grid_has_864_variants():
             ['A', 'B', 'C'],
             [6, 12, 24],
             [12, 36, 60],
-            [0.0, 0.4, 0.6, 0.8],
+            [0.4, 0.6, 0.8, 1.0],
             [1, 3, 6, 12],
             ['rank', 'equal'],
         )

@@ -18,6 +18,10 @@ class GridRunner:
     after delivery costs, with their monthly series, so a reader can score
     any sub-period or cost choice afterwards.
 
+    Shrinkage w = 0 is left out: it sets every beta to 1, so the shares tie
+    and nothing can be ranked. For any w above 0 the ranking is the raw
+    beta's, and w only changes the leverage 1 / beta_L and 1 / beta_H.
+
     Attributes:
         study: The study's inputs.
         impacts: Market impact per side for each universe.
@@ -76,7 +80,7 @@ class GridRunner:
         universes: Iterable[str] = ('A', 'B', 'C'),
         volatility_months: Iterable[int] = (6, 12, 24),
         correlation_months: Iterable[int] = (12, 36, 60),
-        shrinkages: Iterable[float] = (0.0, 0.4, 0.6, 0.8),
+        shrinkages: Iterable[float] = (0.4, 0.6, 0.8, 1.0),
         holdings: Iterable[int] = (1, 3, 6, 12),
         weightings: Iterable[str] = ('rank', 'equal'),
         progress: bool = False,
@@ -174,6 +178,10 @@ class GridRunner:
                 monthly series.
         """
         bab_weights, _ = builder.bab(holding, weighting)
+        if not (bab_weights != 0.0).any(axis=None):
+            return {}, pd.DataFrame(
+                columns=['bab_gross', 'bab_net', 'long_gross', 'long_net']
+            )
         gross = bab_runner.run(bab_weights, 'none')
         net = bab_runner.run(bab_weights, 'futures')
         long_weights, _ = builder.low_beta_half(holding, weighting)
