@@ -47,6 +47,14 @@ All code is in `src/frazzini_pedersen_betting_against_beta_india/`.
 
 Run the tests with `python -m pytest`. They need no network.
 
+## Shared databases
+
+`scripts/store_shared_results.py` writes to the Research Analysts' shared places only. It upserts, so it is safe to run again.
+- **TimescaleDB `results.strategy_returns`:** monthly returns before and after costs for the BAB factor (universes A, B, C) and T1, T2, L1, L2 and L3, with the NIFTY 500 TRI as benchmark. They come from `results/monthly_series_*.csv` and `results/tradeable_monthly.csv`.
+- **MongoDB and ChromaDB `findings`:** six findings with ids `betting-against-beta-research-paper:<slug>`.
+
+The study keeps no private schema or collection; everything can be rebuilt from `results/`.
+
 ## Citation
 
 See `CITATION.cff`. Please also cite the original paper:

@@ -26,6 +26,9 @@ dependencies = [
     "pandas",
     "pyarrow",
     "statsmodels",
+    "psycopg[binary]",
+    "pymongo",
+    "chromadb",
     "requests",
 ]
 
