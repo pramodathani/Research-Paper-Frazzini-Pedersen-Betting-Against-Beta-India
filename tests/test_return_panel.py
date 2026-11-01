@@ -55,3 +55,37 @@ def test_daily_risk_free_adds_up_to_the_month():
     panel, _ = make_panel()
     january = panel.risk_free[panel.risk_free.index.month == 1]
     assert january.sum() == pytest.approx(0.004)
+
+
+def test_delisting_stress_charges_a_vanished_share():
+    from frazzini_pedersen_betting_against_beta_india.betting_against_beta.delisting_stress import (
+        DelistingStress,
+    )
+
+    dates = pd.bdate_range('2020-01-01', '2020-12-31')
+    rows = []
+    for symbol, last in (
+        ('LIVE', dates[-1]),
+        ('GONE', pd.Timestamp('2020-03-31')),
+    ):
+        for date in dates[dates <= last]:
+            rows.append(
+                {
+                    'date': date,
+                    'symbol': symbol,
+                    'close': 100.0,
+                    'traded_value': 1e6,
+                    'ret': 0.001,
+                }
+            )
+    market = pd.Series(0.0005, index=dates)
+    rf = pd.Series(0.004, index=pd.period_range('2020-01', '2020-12', freq='M'))
+    panel = ReturnPanel(pd.DataFrame(rows), market, rf)
+    stress = DelistingStress(panel)
+    gone = stress.vanished()
+    assert list(gone['symbol']) == ['GONE']
+    assert gone['shock_month'].iloc[0] == pd.Period('2020-04')
+    monthly = stress.monthly_returns(-0.3)
+    assert monthly.loc[pd.Period('2020-04'), 'GONE'] == pytest.approx(-0.3)
+    assert np.isnan(monthly.loc[pd.Period('2020-05'), 'GONE'])
+    assert monthly.loc[pd.Period('2020-04'), 'LIVE'] > 0
