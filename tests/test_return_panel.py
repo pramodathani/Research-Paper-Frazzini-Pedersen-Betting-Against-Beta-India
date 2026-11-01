@@ -52,6 +52,6 @@ def test_month_ends_are_last_trading_days():
 
 
 def test_daily_risk_free_adds_up_to_the_month():
-    panel, dates = make_panel()
+    panel, _ = make_panel()
     january = panel.risk_free[panel.risk_free.index.month == 1]
     assert january.sum() == pytest.approx(0.004)

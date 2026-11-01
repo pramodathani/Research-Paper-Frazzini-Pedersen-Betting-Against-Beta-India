@@ -1,6 +1,7 @@
 """Alphas and factor loadings with Newey-West standard errors."""
 
 import math
+from typing import ClassVar
 
 import pandas as pd
 import statsmodels.api as sm
@@ -19,7 +20,7 @@ class FactorAlphas:
         lags: The Newey-West lags.
     """
 
-    MODELS = {
+    MODELS: ClassVar[dict[str, list[str]]] = {
         'capm': ['MF'],
         'ff3': ['MF', 'SMB', 'HML'],
         'carhart': ['MF', 'SMB', 'HML', 'WML'],

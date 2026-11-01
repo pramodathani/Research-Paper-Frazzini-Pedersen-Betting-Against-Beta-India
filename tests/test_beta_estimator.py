@@ -26,7 +26,7 @@ def test_exact_beta_when_share_is_a_multiple_of_the_market():
 
 
 def test_three_day_returns_are_overlapping_sums():
-    index, market = make_market(30)
+    _, market = make_market(30)
     shares = pd.DataFrame({'A': market * 2})
     estimator = BetaEstimator(shares, market, 5, 5)
     summed, market_sum = estimator._overlapping_returns(3)
@@ -66,6 +66,6 @@ def test_changing_later_prices_does_not_change_an_earlier_estimate():
 
 
 def test_mismatched_dates_are_refused():
-    index, market = make_market(50)
+    _, market = make_market(50)
     with pytest.raises(ValueError):
         BetaEstimator(pd.DataFrame({'A': market}).iloc[1:], market)

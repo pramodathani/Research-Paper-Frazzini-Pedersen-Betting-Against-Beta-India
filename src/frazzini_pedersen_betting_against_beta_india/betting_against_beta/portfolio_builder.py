@@ -159,7 +159,7 @@ class PortfolioBuilder:
         betas_out = []
         for row, (_, betas) in enumerate(self.betas.iterrows()):
             present = betas.dropna()
-            count = int(round(fraction * len(present)))
+            count = round(fraction * len(present))
             if count < 5:
                 betas_out.append(np.nan)
                 continue
@@ -190,7 +190,7 @@ class PortfolioBuilder:
             if len(present) < 10:
                 betas_out.append(np.nan)
                 continue
-            low, high = self.weights.split(present)
+            low, _ = self.weights.split(present)
             rows[row, self.betas.columns.get_indexer(present.index)] = (
                 low.to_numpy()
             )

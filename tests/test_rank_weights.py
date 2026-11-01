@@ -23,7 +23,7 @@ def test_five_shares_match_a_hand_calculation():
 
 def test_ties_share_the_average_rank():
     betas = pd.Series([1.0, 1.0, 2.0, 3.0], index=list('abcd'))
-    low, high = RankWeights().split(betas)
+    low, _ = RankWeights().split(betas)
     assert low['a'] == pytest.approx(low['b'])
     assert low.sum() == pytest.approx(1.0)
 
