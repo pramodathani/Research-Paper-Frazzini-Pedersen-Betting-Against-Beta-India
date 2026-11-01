@@ -32,7 +32,7 @@ Frazzini and Pedersen argue that investors who cannot or will not borrow buy hig
 
 ## Status
 
-The results are done and reviewed (`results/summary.md`). The companion site and publishing come next, and nothing is published yet.
+The results are done and reviewed (`results/summary.md`). The interactive companion page is at https://tradingmachine.co.in/papers/frazzini-pedersen-betting-against-beta-india/.
 
 ## How the code is laid out
 
@@ -46,6 +46,27 @@ All code is in `src/frazzini_pedersen_betting_against_beta_india/`.
 - `scripts/`: `build_returns.py`, `build_fno_membership.py`, `build_india_vix.py` and `run_grid.py`.
 
 Run the tests with `python -m pytest`. They need no network.
+
+## How to reproduce
+
+```bash
+python -m venv .venv && .venv/bin/pip install -e ".[test]"
+.venv/bin/pip install -e /path/to/data-and-analytics --no-deps   # the shared backtesting engine
+python -m frazzini_pedersen_betting_against_beta_india.scripts.download_nse      # NSE bhavcopies, F&O, corporate actions
+python -m frazzini_pedersen_betting_against_beta_india.scripts.download_indices  # niftyindices.com total-return indices
+python -m frazzini_pedersen_betting_against_beta_india.scripts.download_tbills   # RBI 91-day T-bill auctions
+python -m frazzini_pedersen_betting_against_beta_india.scripts.download_slb      # SLB lists and bhavcopies
+python -m frazzini_pedersen_betting_against_beta_india.scripts.build_returns
+python -m frazzini_pedersen_betting_against_beta_india.scripts.build_fno_membership
+python -m frazzini_pedersen_betting_against_beta_india.scripts.build_india_vix
+python -m frazzini_pedersen_betting_against_beta_india.scripts.estimate_borrow_fee
+python -m frazzini_pedersen_betting_against_beta_india.scripts.make_results
+python -m frazzini_pedersen_betting_against_beta_india.scripts.run_grid
+python -m frazzini_pedersen_betting_against_beta_india.scripts.build_snapshot
+bab-india-app   # serves the companion page locally
+```
+
+Exchange data are downloaded into the git-ignored `data/` folder and are not redistributed. The IIMA factor file is fetched by `download_nse` (see `data/README.md`).
 
 ## Shared databases
 
