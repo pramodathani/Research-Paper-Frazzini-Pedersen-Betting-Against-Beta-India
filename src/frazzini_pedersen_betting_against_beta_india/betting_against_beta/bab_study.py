@@ -45,11 +45,45 @@ class BabStudy:
 
     def __init__(
         self,
+        panel: ReturnPanel,
+        factors: pd.DataFrame,
+        futures: pd.DataFrame | None = None,
+        first_formation: str = '1998-12-01',
+    ) -> None:
+        """Builds the universes and monthly returns from a panel.
+
+        Args:
+            panel (ReturnPanel): The daily return panel.
+            factors (pd.DataFrame): The IIMA factors by month.
+            futures (pd.DataFrame | None): Columns date and symbol of the
+                days a share had a stock future, or None for no F&O universe.
+            first_formation (str): The earliest formation day to consider.
+
+        Returns:
+            None.
+        """
+        self.panel = panel
+        ends = panel.month_ends()
+        self.dates = ends[ends >= pd.Timestamp(first_formation)]
+        builder = Universes(panel)
+        self.universes = builder.build(self.dates, futures)
+        self.median_value = builder.median_traded_value(self.dates)
+        self.betas = BetaTables(panel, self.dates)
+        self.monthly = panel.monthly_returns()
+        self.risk_free = panel.risk_free_monthly.reindex(
+            self.monthly.index
+        ).ffill()
+        self.market = panel.monthly_market()
+        self.factors = factors
+
+    @classmethod
+    def from_files(
+        cls,
         data: Path,
         derived: Path,
         first_formation: str = '1998-12-01',
-    ) -> None:
-        """Builds the panel, universes and monthly returns.
+    ) -> BabStudy:
+        """Loads the saved files and builds the study.
 
         Args:
             data (Path): The study's data folder.
@@ -57,25 +91,15 @@ class BabStudy:
             first_formation (str): The earliest formation day to consider.
 
         Returns:
-            None.
+            BabStudy: The study.
         """
-        self.panel = ReturnPanel.from_files(data, derived)
-        ends = self.panel.month_ends()
-        self.dates = ends[ends >= pd.Timestamp(first_formation)]
+        panel = ReturnPanel.from_files(data, derived)
         futures_path = Path(derived) / 'fno_members.parquet'
         futures = (
             pd.read_parquet(futures_path) if futures_path.exists() else None
         )
-        builder = Universes(self.panel)
-        self.universes = builder.build(self.dates, futures)
-        self.median_value = builder.median_traded_value(self.dates)
-        self.betas = BetaTables(self.panel, self.dates)
-        self.monthly = self.panel.monthly_returns()
-        self.risk_free = self.panel.risk_free_monthly.reindex(
-            self.monthly.index
-        ).ffill()
-        self.market = self.panel.monthly_market()
-        self.factors = MarketData(data).iima_factors()
+        factors = MarketData(data).iima_factors()
+        return cls(panel, factors, futures, first_formation)
 
     def builder(
         self,
