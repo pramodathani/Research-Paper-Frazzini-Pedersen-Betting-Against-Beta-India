@@ -33,6 +33,44 @@ class ExtraTables:
         self.study = study
         self.lags = lags
 
+    def realised_market_stress(self, days: int = 63) -> pd.Series:
+        """Measures stress as the market's recent daily volatility.
+
+        This is available for the whole sample, unlike India VIX, and is
+        the stand-in for the paper's TED spread volatility. The value for a
+        month is taken on its last trading day and applies to the month
+        after, so it is known when the portfolio is formed.
+
+        Args:
+            days (int): Trading days in the window.
+
+        Returns:
+            pd.Series: Annualised volatility by holding month.
+        """
+        market = self.study.panel.market
+        vol = market.rolling(days, min_periods=days // 2).std() * np.sqrt(252)
+        ends = vol.reindex(self.study.dates)
+        ends.index = ends.index.to_period('M') + 1
+        return ends.dropna()
+
+    @staticmethod
+    def vix_stress(vix_daily: pd.Series) -> pd.Series:
+        """Measures stress as India VIX at the month end.
+
+        Args:
+            vix_daily (pd.Series): India VIX by date.
+
+        Returns:
+            pd.Series: The month-end level, labelled by the month after.
+        """
+        ends = (
+            vix_daily.dropna()
+            .groupby(vix_daily.dropna().index.to_period('M'))
+            .last()
+        )
+        ends.index = ends.index + 1
+        return ends
+
     def bab_series(
         self,
         universe: str = 'A',
