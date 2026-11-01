@@ -55,11 +55,16 @@ class PortfolioBuilder:
         """
         return self.betas.index.to_period('M') + 1
 
-    def bab(self, holding_months: int = 1) -> tuple[pd.DataFrame, pd.DataFrame]:
+    def bab(
+        self,
+        holding_months: int = 1,
+        weighting: str = 'rank',
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
         """Builds the BAB factor's weights.
 
         Args:
             holding_months (int): K, the months a cohort is held.
+            weighting (str): 'rank' or 'equal' inside the two halves.
 
         Returns:
             tuple[pd.DataFrame, pd.DataFrame]: The weights, long side
@@ -74,7 +79,7 @@ class PortfolioBuilder:
             if len(present) < 10:
                 ex_ante.append((np.nan, np.nan))
                 continue
-            low, high = self.weights.split(present)
+            low, high = self.weights.split(present, weighting)
             beta_low, beta_high = self.weights.bab_leverage(present, low, high)
             ex_ante.append((beta_low, beta_high))
             if beta_low <= 0 or beta_high <= 0:
@@ -173,11 +178,13 @@ class PortfolioBuilder:
     def low_beta_half(
         self,
         holding_months: int = 1,
+        weighting: str = 'rank',
     ) -> tuple[pd.DataFrame, pd.Series]:
         """Builds the BAB long leg alone, unlevered, long only.
 
         Args:
             holding_months (int): K, the months a cohort is held.
+            weighting (str): 'rank' or 'equal' inside the half.
 
         Returns:
             tuple[pd.DataFrame, pd.Series]: The rank weights of the
@@ -190,7 +197,7 @@ class PortfolioBuilder:
             if len(present) < 10:
                 betas_out.append(np.nan)
                 continue
-            low, _ = self.weights.split(present)
+            low, _ = self.weights.split(present, weighting)
             rows[row, self.betas.columns.get_indexer(present.index)] = (
                 low.to_numpy()
             )

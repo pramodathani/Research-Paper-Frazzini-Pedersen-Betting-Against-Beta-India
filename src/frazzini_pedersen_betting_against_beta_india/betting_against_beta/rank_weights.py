@@ -13,12 +13,19 @@ class RankWeights:
     sums to one, and the share at the median has zero weight.
     """
 
-    def split(self, betas: pd.Series) -> tuple[pd.Series, pd.Series]:
+    def split(
+        self,
+        betas: pd.Series,
+        weighting: str = 'rank',
+    ) -> tuple[pd.Series, pd.Series]:
         """Gives the two sides' weights.
 
         Args:
             betas (pd.Series): Betas of the shares in the universe, indexed
                 by symbol, with no NaN.
+            weighting (str): 'rank' for the paper's rank weights or 'equal'
+                for equal weights inside the below-median and above-median
+                halves.
 
         Returns:
             tuple[pd.Series, pd.Series]: The low-beta weights and the
@@ -31,6 +38,14 @@ class RankWeights:
         if len(betas) < 2 or total == 0:
             zero = pd.Series(0.0, index=betas.index)
             return zero, zero.copy()
+        if weighting == 'equal':
+            low_half = centred < 0
+            high_half = centred > 0
+            low = low_half / low_half.sum() if low_half.any() else centred * 0
+            high = (
+                high_half / high_half.sum() if high_half.any() else centred * 0
+            )
+            return low.astype(float), high.astype(float)
         scale = 2.0 / total
         high = scale * centred.clip(lower=0.0)
         low = scale * (-centred).clip(lower=0.0)

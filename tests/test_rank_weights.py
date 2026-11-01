@@ -57,3 +57,11 @@ def test_groups_cut_evenly():
     groups = RankWeights().groups(betas, 10)
     assert groups.value_counts().eq(2).all()
     assert groups['s0'] == 1 and groups['s19'] == 10
+
+
+def test_equal_weights_split_the_halves():
+    betas = pd.Series([0.5, 0.8, 1.0, 1.2, 1.6], index=list('abcde'))
+    low, high = RankWeights().split(betas, 'equal')
+    assert low['a'] == pytest.approx(0.5) and low['b'] == pytest.approx(0.5)
+    assert high['d'] == pytest.approx(0.5) and high['e'] == pytest.approx(0.5)
+    assert low['c'] == 0 and high['c'] == 0

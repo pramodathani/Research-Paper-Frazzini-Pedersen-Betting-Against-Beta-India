@@ -100,7 +100,8 @@ class StrategyRunner:
             pd.DataFrame: Columns gross, net, cost, turnover and holdings by
                 month, for the months with a position.
         """
-        columns = weights.columns.intersection(self.returns.columns)
+        held = weights.columns[(weights != 0.0).any(axis=0)]
+        columns = held.intersection(self.returns.columns)
         months = weights.index.intersection(self.returns.index)
         result = Backtest(
             self.returns.loc[months, columns],
