@@ -29,8 +29,12 @@ class RbiTbillParser:
             date = self.DATE.search(text)
             cutoff = self.CUTOFF.search(text)
             if date and cutoff:
-                rows.append({
-                    'date': pd.to_datetime(date.group(1), format='%b %d, %Y'),
-                    'yield_91d': float(cutoff.group(1)),
-                })
+                rows.append(
+                    {
+                        'date': pd.to_datetime(
+                            date.group(1), format='%b %d, %Y'
+                        ),
+                        'yield_91d': float(cutoff.group(1)),
+                    }
+                )
         return pd.DataFrame(rows).sort_values('date').reset_index(drop=True)

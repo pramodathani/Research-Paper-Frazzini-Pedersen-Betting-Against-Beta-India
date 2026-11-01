@@ -57,12 +57,18 @@ class SlbEligibilityDownloader:
         """
         self.folder.mkdir(parents=True, exist_ok=True)
         missing_path = self.folder / 'not_available.txt'
-        missing = set(missing_path.read_text().split()) if missing_path.exists() else set()
+        missing = (
+            set(missing_path.read_text().split())
+            if missing_path.exists()
+            else set()
+        )
         counts = {'saved': 0, 'present': 0, 'not_available': 0, 'failed': 0}
         year, month = self.first_month.year, self.first_month.month
         while (year, month) <= (self.last_month.year, self.last_month.month):
             key = f'{year}-{month:02d}'
-            if any(self.folder.glob(self.FILE_GLOB.format(month=month, year=year))):
+            if any(
+                self.folder.glob(self.FILE_GLOB.format(month=month, year=year))
+            ):
                 counts['present'] += 1
             elif key in missing:
                 counts['not_available'] += 1
@@ -73,7 +79,9 @@ class SlbEligibilityDownloader:
                 year, month = year + 1, 1
         return counts
 
-    def _fetch_month(self, year: int, month: int, key: str, missing_path: Path) -> str:
+    def _fetch_month(
+        self, year: int, month: int, key: str, missing_path: Path
+    ) -> str:
         """Tries the month's last days until a file is served.
 
         Args:

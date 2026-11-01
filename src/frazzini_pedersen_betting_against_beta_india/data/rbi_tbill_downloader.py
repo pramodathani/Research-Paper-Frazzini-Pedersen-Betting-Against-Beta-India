@@ -55,17 +55,26 @@ class RbiTbillDownloader:
         """
         self.folder.mkdir(parents=True, exist_ok=True)
         scanned_path = self.folder / 'scanned.txt'
-        scanned = set(scanned_path.read_text().split()) if scanned_path.exists() else set()
+        scanned = (
+            set(scanned_path.read_text().split())
+            if scanned_path.exists()
+            else set()
+        )
         counts = {'saved': 0, 'skipped': 0, 'failed': 0}
         headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) Chrome/130.0'}
         session = requests.Session()
         for number in range(self.first_id, self.last_id + 1):
-            if str(number) in scanned or (self.folder / f'{number}.html').exists():
+            if (
+                str(number) in scanned
+                or (self.folder / f'{number}.html').exists()
+            ):
                 counts['skipped'] += 1
                 continue
             time.sleep(self.pause_seconds)
             try:
-                response = session.get(self.URL + str(number), headers=headers, timeout=60)
+                response = session.get(
+                    self.URL + str(number), headers=headers, timeout=60
+                )
             except requests.RequestException:
                 counts['failed'] += 1
                 continue

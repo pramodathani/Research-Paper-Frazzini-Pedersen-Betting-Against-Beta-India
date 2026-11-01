@@ -44,15 +44,17 @@ class NiftyIndicesDownloader:
         self.folder = folder
         self.pause_seconds = pause_seconds
         self.session = requests.Session()
-        self.session.headers.update({
-            'User-Agent': (
-                'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
-                '(KHTML, like Gecko) Chrome/130.0 Safari/537.36'
-            ),
-            'Content-Type': 'application/json; charset=utf-8',
-            'Referer': self.HOME,
-            'Origin': 'https://www.niftyindices.com',
-        })
+        self.session.headers.update(
+            {
+                'User-Agent': (
+                    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 '
+                    '(KHTML, like Gecko) Chrome/130.0 Safari/537.36'
+                ),
+                'Content-Type': 'application/json; charset=utf-8',
+                'Referer': self.HOME,
+                'Origin': 'https://www.niftyindices.com',
+            }
+        )
         self._warmed = False
 
     def run(
@@ -136,6 +138,6 @@ class NiftyIndicesDownloader:
                 if text in ('false', 'False'):
                     return []
                 return json.loads(text) if isinstance(text, str) else text
-            except (requests.RequestException, ValueError, KeyError):
+            except requests.RequestException, ValueError, KeyError:
                 time.sleep(5 * (attempt + 1))
         return None

@@ -41,7 +41,9 @@ class CoverageApplication:
             'last_date': str(frame['date'].max()),
             'by_year': by_year.round(3).reset_index().to_dict('records'),
         }
-        Path('data/coverage.json').write_text(json.dumps(result, indent=1, default=str))
+        Path('data/coverage.json').write_text(
+            json.dumps(result, indent=1, default=str)
+        )
         print(by_year.to_string())
         print({k: v for k, v in result.items() if k != 'by_year'})
 
