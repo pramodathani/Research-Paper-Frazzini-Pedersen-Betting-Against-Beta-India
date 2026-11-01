@@ -132,7 +132,8 @@ class ExtraTables:
                 ),
             ],
             axis=1,
-        ).loc[bab.index.min() :]
+        ).sort_index()
+        table = table[table.index >= bab.index.min()]
         years = table.index.year
         compounded = (1.0 + table).groupby(years).prod(min_count=1) - 1.0
         counts = table.groupby(years).count()
