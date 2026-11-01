@@ -1,0 +1,4 @@
+[package]
+name = "bab-low-beta-india"
+description = "Long-only low-beta portfolio of the 500 most traded NSE shares, rebuilt monthly, with an optional NIFTY futures overlay; from the Betting Against Beta (Frazzini and Pedersen, 2014) study recreated on NSE data"
+version = "2026.11.01"

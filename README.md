@@ -71,6 +71,10 @@ bab-india-app   # serves the companion page locally
 
 Exchange data are downloaded into the git-ignored `data/` folder and are not redistributed. The IIMA factor file is fetched by `download_nse` (see `data/README.md`).
 
+## Hand-off to trading-agent
+
+`handoff/bab-low-beta-india/` is the package for trading-agent: a skill, a strategy brief (Markdown and HTML, also on the companion page as `trading-agent-brief.html`), and `scripts/build_targets.py`, which builds the month's long-only low-beta targets from UBI prices. The package places no orders. It holds the long leg only, because the long-short factor does not survive Indian costs; the study found no significant alpha after costs, so it is a risk choice.
+
 ## Shared databases
 
 `scripts/store_shared_results.py` writes to the Research Analysts' shared places only. It upserts, so it is safe to run again.

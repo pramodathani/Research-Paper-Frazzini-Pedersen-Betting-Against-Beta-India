@@ -168,6 +168,7 @@ class MakeResultsApplication:
             axis=1,
         )
         frame.columns = ['_'.join(c) for c in frame.columns]
+        frame = frame.sort_index()
         frame.index = frame.index.astype(str)
         self.save(frame, 'tradeable_monthly')
         loader = MarketData(self.data)
