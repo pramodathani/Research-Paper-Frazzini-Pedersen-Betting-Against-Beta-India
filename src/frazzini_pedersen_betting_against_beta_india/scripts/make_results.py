@@ -155,6 +155,14 @@ class MakeResultsApplication:
         portfolios = TradeablePortfolios(study)
         table, runs = portfolios.run_all()
         self.save(table, 'tradeable')
+        rolls = {}
+        for roll in (0.0, 0.0005, 0.001):
+            rolled, _ = portfolios.run_all(roll_impact=roll)
+            for name in ('T1', 'T2'):
+                rolls[f'{name} after costs, roll impact {roll:.2%}'] = (
+                    rolled.loc[f'{name} after costs']
+                )
+        self.save(pd.DataFrame(rolls).T, 'roll_sensitivity')
         frame = pd.concat(
             {name: run[['gross', 'net']] for name, run in runs.items()},
             axis=1,

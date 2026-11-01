@@ -50,6 +50,7 @@ class TradeablePortfolios:
         long_fraction: float = 0.2,
         impact_liquid: float = 0.001,
         impact_futures: float = 0.001,
+        roll_impact: float = 0.0005,
     ) -> tuple[pd.DataFrame, dict[str, pd.DataFrame]]:
         """Runs all five portfolios.
 
@@ -62,6 +63,8 @@ class TradeablePortfolios:
             impact_liquid (float): Market impact per side for the long-only
                 portfolios.
             impact_futures (float): Market impact per side for futures legs.
+            roll_impact (float): Market impact per side of the monthly roll
+                of the stock futures in T1 and T2.
 
         Returns:
             tuple[pd.DataFrame, dict[str, pd.DataFrame]]: A summary table
@@ -81,9 +84,13 @@ class TradeablePortfolios:
             'B', volatility_months, correlation_months, shrinkage
         )
         weights, _ = futures.bab(holding_months)
-        runs['T1'] = excess_runner.run(weights, 'futures')
+        runs['T1'] = excess_runner.run(
+            weights, 'futures', roll_impact=roll_impact
+        )
         weights, _ = futures.quintile_spread(holding_months)
-        runs['T2'] = excess_runner.run(weights, 'futures')
+        runs['T2'] = excess_runner.run(
+            weights, 'futures', roll_impact=roll_impact
+        )
         weights, _ = liquid.lowest_beta(long_fraction, holding_months)
         runs['L1'] = total_runner.run(weights, 'delivery')
         weights2, _ = liquid.low_beta_half(holding_months)

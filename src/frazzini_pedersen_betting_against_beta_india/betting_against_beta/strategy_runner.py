@@ -86,6 +86,8 @@ class StrategyRunner:
         cost_kind: str,
         extra: pd.DataFrame | None = None,
         extra_weights: pd.DataFrame | None = None,
+        roll_impact: float | None = None,
+        overlay_roll_impact: float = 0.0002,
     ) -> pd.DataFrame:
         """Runs the portfolio.
 
@@ -95,6 +97,11 @@ class StrategyRunner:
             extra (pd.DataFrame | None): Returns of a futures overlay
                 (columns such as NIFTY), months by overlay.
             extra_weights (pd.DataFrame | None): The overlay's weights.
+            roll_impact (float | None): Market impact per side of the
+                monthly futures roll of the shares' positions, or None when
+                the shares are not held through futures.
+            overlay_roll_impact (float): Market impact per side of the
+                overlay's monthly roll (NIFTY futures are very liquid).
 
         Returns:
             pd.DataFrame: Columns gross, net, cost, turnover and holdings by
@@ -127,12 +134,14 @@ class StrategyRunner:
                 frame['cost']
                 + overlay.costs.fillna(0.0)
                 + self.roll_cost(
-                    extra_weights.loc[months], overlay.turnover().fillna(0.0)
+                    extra_weights.loc[months],
+                    overlay.turnover().fillna(0.0),
+                    overlay_roll_impact,
                 ).fillna(0.0)
             )
-        if cost_kind == 'futures':
+        if roll_impact is not None:
             frame['cost'] = frame['cost'] + self.roll_cost(
-                weights.loc[months, columns], frame['turnover']
+                weights.loc[months, columns], frame['turnover'], roll_impact
             )
         frame['net'] = frame['gross'] - frame['cost']
         return frame.dropna(subset=['gross'])
@@ -141,6 +150,7 @@ class StrategyRunner:
         self,
         weights: pd.DataFrame,
         turnover: pd.Series,
+        impact_cost: float,
     ) -> pd.Series:
         """Charges the monthly roll of futures positions that are kept.
 
@@ -152,11 +162,14 @@ class StrategyRunner:
         Args:
             weights (pd.DataFrame): The futures weights by month.
             turnover (pd.Series): Bought plus sold by month.
+            impact_cost (float): Market impact per side of the roll, lower
+                than an outright trade because a roll is one calendar
+                spread.
 
         Returns:
             pd.Series: The roll cost by month, as a fraction of capital.
         """
-        model = FuturesCosts(self.impact_cost)
+        model = FuturesCosts(impact_cost)
         gross = weights.abs().sum(axis=1)
         kept = (gross - turnover.reindex(gross.index).fillna(0.0)).clip(
             lower=0.0

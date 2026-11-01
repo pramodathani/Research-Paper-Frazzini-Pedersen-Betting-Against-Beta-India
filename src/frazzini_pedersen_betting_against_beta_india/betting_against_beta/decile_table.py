@@ -10,6 +10,12 @@ from frazzini_pedersen_betting_against_beta_india.betting_against_beta.bab_study
 class DecileTable:
     """Scores beta-sorted portfolios and the BAB factor.
 
+    After costs, universes A and B are cash portfolios: both legs pay
+    delivery costs and the short leg a yearly borrow fee through SLB, which
+    few shares can actually be borrowed in (a paper portfolio). Universe C
+    is held through stock futures: futures costs on the rebalance plus the
+    monthly roll, and no borrow fee.
+
     The decile portfolios are long only, each fully invested in the shares
     of one beta group, so their returns are in excess of the risk-free rate
     after taking it off. The BAB row uses the leveraged weights.
@@ -20,18 +26,26 @@ class DecileTable:
             in the after-cost BAB row, as a fraction.
     """
 
-    def __init__(self, study: BabStudy, borrow_fee_annual: float = 0.0) -> None:
+    def __init__(
+        self,
+        study: BabStudy,
+        borrow_fee_annual: float = 0.0,
+        roll_impact: float = 0.0005,
+    ) -> None:
         """Keeps the study.
 
         Args:
             study (BabStudy): The study's inputs.
             borrow_fee_annual (float): The yearly short fee as a fraction.
+            roll_impact (float): Market impact per side of the monthly
+                futures roll in universe C.
 
         Returns:
             None.
         """
         self.study = study
         self.borrow_fee_annual = borrow_fee_annual
+        self.roll_impact = roll_impact
 
     def run(
         self,
@@ -81,7 +95,12 @@ class DecileTable:
             rows[name]['ex_ante_beta'] = self._ex_ante(builder, weights, start)
         bab_weights, _ = builder.bab(holding_months)
         gross = runner.run(bab_weights, 'none')
-        net = runner.run(bab_weights, 'futures')
+        if universe == 'C':
+            net = runner.run(
+                bab_weights, 'futures', roll_impact=self.roll_impact
+            )
+        else:
+            net = runner.run(bab_weights, 'delivery')
         series['BAB'] = self._cut(gross['gross'], start)
         rows['BAB'] = runner.score(series['BAB'], True)
         rows['BAB']['ex_ante_beta'] = 0.0

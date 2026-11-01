@@ -14,8 +14,9 @@ from frazzini_pedersen_betting_against_beta_india.betting_against_beta.bab_study
 class GridRunner:
     """Scores every combination of universe, windows, shrinkage, K and weighting.
 
-    For each combination it records the BAB factor before and after futures
-    costs, and the BAB long leg held unlevered in delivery shares before and
+    For each combination it records the BAB factor before and after costs
+    (delivery costs and an SLB fee in A and B, futures costs and the roll in
+    C), and the BAB long leg held unlevered in delivery shares before and
     after delivery costs, with their monthly series, so a reader can score
     any sub-period or cost choice afterwards.
 
@@ -30,16 +31,27 @@ class GridRunner:
 
     IMPACTS: ClassVar[dict[str, float]] = {'A': 0.003, 'B': 0.001, 'C': 0.001}
 
-    def __init__(self, study: BabStudy) -> None:
+    def __init__(
+        self,
+        study: BabStudy,
+        borrow_fee_annual: float = 0.0325,
+        roll_impact: float = 0.0005,
+    ) -> None:
         """Keeps the study.
 
         Args:
             study (BabStudy): The study's inputs.
+            borrow_fee_annual (float): The yearly SLB fee on the short leg
+                in universes A and B.
+            roll_impact (float): Market impact per side of the futures roll
+                in universe C.
 
         Returns:
             None.
         """
         self.study = study
+        self.borrow_fee_annual = borrow_fee_annual
+        self.roll_impact = roll_impact
 
     def variant_count(
         self,
@@ -124,6 +136,7 @@ class GridRunner:
                         builder,
                         bab_runner,
                         long_runner,
+                        universe,
                         holding,
                         weighting,
                     )
@@ -162,6 +175,7 @@ class GridRunner:
         builder,
         bab_runner,
         long_runner,
+        universe: str,
         holding: int,
         weighting: str,
     ) -> tuple[dict, pd.DataFrame]:
@@ -171,6 +185,7 @@ class GridRunner:
             builder: The portfolio builder for the beta setting.
             bab_runner: The runner over excess returns.
             long_runner: The runner over total returns.
+            universe (str): The universe, which decides the cost treatment.
             holding (int): K.
             weighting (str): 'rank' or 'equal'.
 
@@ -184,7 +199,15 @@ class GridRunner:
                 columns=['bab_gross', 'bab_net', 'long_gross', 'long_net']
             )
         gross = bab_runner.run(bab_weights, 'none')
-        net = bab_runner.run(bab_weights, 'futures')
+        if universe == 'C':
+            net = bab_runner.run(
+                bab_weights, 'futures', roll_impact=self.roll_impact
+            )
+        else:
+            net = bab_runner.run(bab_weights, 'delivery')
+            short = -bab_weights.clip(upper=0).sum(axis=1)
+            drag = (short * self.borrow_fee_annual / 12.0).reindex(net.index)
+            net['net'] = net['net'] - drag.fillna(0.0)
         long_weights, _ = builder.low_beta_half(holding, weighting)
         long_run = long_runner.run(long_weights, 'delivery')
         frame = pd.DataFrame(
