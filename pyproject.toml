@@ -40,6 +40,9 @@ live = [
     "tradingmachine",
 ]
 
+[project.scripts]
+bab-india-app = "frazzini_pedersen_betting_against_beta_india.site_server:SiteServerApplication.main"
+
 [tool.hatch.build.targets.wheel]
 packages = [
     "src/frazzini_pedersen_betting_against_beta_india",

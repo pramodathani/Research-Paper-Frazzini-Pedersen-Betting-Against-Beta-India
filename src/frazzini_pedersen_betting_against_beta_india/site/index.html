@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Betting Against Beta in India: Frazzini and Pedersen (2014) Recreated on NSE Shares</title>
+<meta name="description" content="Frazzini and Pedersen's betting-against-beta factor recreated on NSE shares from 1999 to date, before and after Indian trading costs, as a long-short factor, a stock-futures portfolio and long-only low-beta portfolios. Choose the beta windows, holding period, shrinkage, universe, weighting, costs and sample.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+
+<h1>Betting Against Beta in India</h1>
+<p class="subtitle">Frazzini and Pedersen (2014) recreated on NSE shares, 1999 to <span data-fill="end_year">2026</span></p>
+<p class="author">Pramod Athani</p>
+<p class="author-links">
+<a href="mailto:pramod.athani@gmail.com">pramod.athani@gmail.com</a> &middot;
+<a href="https://orcid.org/0009-0002-0270-7045">ORCID 0009-0002-0270-7045</a> &middot;
+<a href="https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=13497529">SSRN 13497529</a> &middot;
+<a href="https://www.linkedin.com/in/pramod-athani-b65b922a/">LinkedIn</a>
+</p>
+<p class="date-line"><span data-fill="end_label">October 2026</span> &middot; data to the end of <span data-fill="end_label">October 2026</span></p>
+<div class="colour-bar"><span style="background:#4285f4"></span><span style="background:#ea4335"></span><span style="background:#fbbc05"></span><span style="background:#34a853"></span></div>
+
+<section class="abstract">
+<h2>Abstract</h2>
+<p>Frazzini and Pedersen (2014) argue that investors who cannot borrow bid up high-beta assets, so that a betting-against-beta (BAB) factor, long low-beta and short high-beta assets each levered to a beta of one, earns positive risk-adjusted returns. I recreate their method on shares listed on the National Stock Exchange of India from April 1999 to <span data-fill="end_label">October 2026</span>, with prices from daily exchange files that include delisted shares, adjusted for splits, bonuses and dividends, and with full Indian trading costs. Before costs the anomaly is as large as in the United States: across all NSE shares the BAB factor earns <span data-fill="bab_a">0.78</span>% a month (Newey-West <i>t</i> = <span data-fill="bab_a_t">3.60</span>, Sharpe ratio <span data-fill="bab_a_sharpe">0.77</span>), and alphas fall steadily from the lowest-beta to the highest-beta decile. But the return comes mostly from thinly traded shares and from the poor performance of the highest-beta shares, and it does not survive the costs of trading it in India: held through stock futures, the factor earns <span data-fill="t1_net">&minus;0.02</span>% a month after costs. A long-only portfolio of the lowest-beta liquid shares earns about the market's return with less risk, a beta of 0.77, rather than an extra return.</p>
+<p class="keywords"><b>Keywords:</b> betting against beta, low-beta anomaly, leverage constraints, India, NSE, transaction costs, short-sale constraints, replication.<br><b>JEL codes:</b> G11, G12, G14.</p>
+</section>
+
+<div class="citation">
+<p id="citation-text">Athani, P. (2026). Betting Against Beta in India: Frazzini and Pedersen (2014) Recreated on NSE Shares. https://tradingmachine.co.in/papers/frazzini-pedersen-betting-against-beta-india/</p>
+<button id="copy-citation" type="button">Copy</button>
+</div>
+
+<ul class="key-findings">
+<li><b>Before costs, the low-beta anomaly is clearly present in India</b>, about as large as in the paper's US sample (0.70% a month, Sharpe 0.78).</li>
+<li><b>It is concentrated in thinly traded shares.</b> Among the 500 most traded shares the factor earns <span data-fill="bab_b">0.47</span>% a month; among shares with stock futures <span data-fill="bab_c">0.39</span>%.</li>
+<li><b>After Indian costs the long-short factor is gone</b> where it can be traded (stock futures), and where it cannot (cash shorts need securities lending, which covers few shares) it keeps only part of its return.</li>
+<li><b>Long-only low-beta portfolios are a lower-risk way to hold Indian equity</b>, not a source of extra return. NSE's own low-volatility indices did as well or better from 2006.</li>
+</ul>
+
+<h2>1. Introduction</h2>
+<p>The capital asset pricing model says that an asset's expected excess return is proportional to its beta. Since Black, Jensen and Scholes (1972), study after study has found that the line is too flat: low-beta assets earn more than the model predicts and high-beta assets less. Black (1972) suggested why: investors who cannot borrow, but want more risk, buy high-beta assets instead of levering a diversified portfolio. Frazzini and Pedersen (2014) turn the idea into a model with testable predictions and into a factor, BAB, which buys low-beta assets levered to a beta of one and sells high-beta assets de-levered to a beta of one. In US shares from 1926 to 2012 the factor earned 0.70% a month with a Sharpe ratio of 0.78, and it worked in 18 of 19 other equity markets and in bonds, credit and futures.</p>
+<p>India is a natural test. Margin and leverage are tightly limited for individual investors, short selling of cash shares is restricted to a thin securities-lending market, and a large share of trading comes from individuals. If leverage constraints drive the anomaly, it should be strong here. But the same constraints make the factor hard to trade. This page reports both sides: the paper's factor, built exactly as in the paper, and the portfolios an Indian investor can actually hold, after the costs they actually pay. Every figure and table marked <i>live</i> is recomputed in your browser from monthly returns when you change the specification below.</p>
+
+<div class="specification" id="specification">
+<div class="title">Specification</div>
+<div class="controls">
+<label><span>Universe</span>
+<select id="control-universe"><option value="A" selected>All NSE shares</option><option value="B">Liquid 500</option><option value="C">Shares with stock futures</option></select></label>
+<label><span>Volatility window (<i>J</i><sub>σ</sub>)</span>
+<select id="control-vol"><option value="6">6 months</option><option value="12" selected>12 months</option><option value="24">24 months</option></select></label>
+<label><span>Correlation window (<i>J</i><sub>ρ</sub>)</span>
+<select id="control-corr"><option value="12">12 months</option><option value="36">36 months</option><option value="60" selected>60 months</option></select></label>
+<label><span>Holding period <i>K</i></span>
+<select id="control-k"><option value="1" selected>1 month</option><option value="3">3 months</option><option value="6">6 months</option><option value="12">12 months</option></select></label>
+<label><span>Shrinkage <i>w</i></span>
+<select id="control-w"><option value="0.4">0.4</option><option value="0.6" selected>0.6 (paper)</option><option value="0.8">0.8</option><option value="1">1.0 (raw beta)</option></select></label>
+<label><span>Weights within each side</span>
+<select id="control-weighting"><option value="rank" selected>Beta rank (paper)</option><option value="equal">Equal</option></select></label>
+<label><span>Portfolio</span>
+<select id="control-portfolio"><option value="bab" selected>BAB long-short</option><option value="long">Low-beta half, long only</option></select></label>
+<label><span>Costs</span>
+<select id="control-costs"><option value="gross" selected>Before costs</option><option value="net">After Indian costs</option></select></label>
+<label><span>Start year</span>
+<select id="control-start"></select></label>
+</div>
+<div class="spec-summary" id="spec-summary">Loading&hellip;</div>
+</div>
+
+<h2>2. Data and method</h2>
+<h3>2.1 Prices and returns</h3>
+<p>Daily prices come from the National Stock Exchange's bhavcopy files from January 1996, which keep every share that ever traded, including those later delisted. I adjust them for splits, bonuses and cash dividends from NSE's corporate action list, link symbol changes, remove exchange-traded and other funds, and repair or flag 1,523 implausible days. The result is 10.26 million daily total returns for 4,318 shares. The market is the NIFTY 500 total return index from niftyindices.com; the risk-free rate is the 91-day Treasury bill rate from the IIMA factor library, extended for 2026 with RBI auction yields. Unified Broker Interface prices, used as a cross-check from December 2019, agree with ours within 1% in 88% of share-months; most differences are dividends, which ours include.</p>
+<h3>2.2 Betas and the BAB factor</h3>
+<p>Following the paper (eqs. 14 and 15, pp.16&ndash;18 of the 2013 draft), a share's beta is &rho;&sdot;&sigma;<sub><i>i</i></sub>/&sigma;<sub><i>m</i></sub>. The volatilities use one year of daily log excess returns and the correlation five years of overlapping three-day log excess returns, which allow for shares that trade late. The estimate is shrunk towards one, 0.6&sdot;&beta; + 0.4. At the end of each month shares are ranked by beta; the low-beta half gets weights proportional to how far its rank is below the median and the high-beta half proportional to how far above, each side summing to one. The factor is long the low-beta side levered by 1/&beta;<sub>L</sub> and short the high-beta side scaled by 1/&beta;<sub>H</sub>, so it has an ex-ante beta of zero, and it is held for the following month. Every input is known at formation; nothing later is used.</p>
+<p>The specification panel varies the paper's choices. <i>J</i><sub>σ</sub> and <i>J</i><sub>ρ</sub> are the volatility and correlation windows (the paper's appendix Table B2 varies them too); <i>K</i> is how long each month's portfolio is held, with <i>K</i> overlapping portfolios each given 1/<i>K</i> of the capital; <i>w</i> is the shrinkage weight, which changes only the leverage, because every <i>w</i> above zero ranks shares the same way.</p>
+<h3>2.3 Universes</h3>
+<p>Three point-in-time universes are used. <b>All NSE shares</b> (A) is closest to the paper: every company share with a price of at least &#8377;2 that traded on at least half the days of the past year. The <b>liquid 500</b> (B) keeps the 500 of these with the highest median daily traded value over the past year, a stand-in for the NIFTY 500, which has no point-in-time membership history. <b>Shares with stock futures</b> (C), from 2005, are the only ones that can be sold short overnight in size.</p>
+<h3>2.4 Costs</h3>
+<p>Costs come from the shared backtesting engine's Indian cost models: brokerage, securities transaction tax, stamp duty, exchange charges, the SEBI fee, GST and market impact, charged on the weights' actual turnover. Universes A and B are cash portfolios: both legs pay delivery costs (impact 0.30% a side in A, 0.10% in B) and the short leg a securities-lending fee of 3.25% a year, the median annualised fee in NSE's SLB market from 2010 to 2026. Since few shares can actually be borrowed, these are paper portfolios. Universe C is held through stock futures: futures costs on rebalancing plus the monthly roll of every position kept, at 0.05% impact a side, with no lending fee. Long-only portfolios pay delivery costs.</p>
+
+<h2>3. The chosen specification <span class="note">(live)</span></h2>
+<div class="stat-cards" id="stat-cards"></div>
+<p class="table-caption"><b>Table 1.</b> Monthly excess returns of the chosen portfolio and of the NIFTY 500 total return index over the same months. Newey-West <i>t</i>-statistics use six lags. Returns are in % a month; volatility in % a year.</p>
+<div class="table-wrap"><table id="table-live"></table></div>
+<figure>
+<div class="chart tall" id="chart-growth"></div>
+<figcaption><b>Figure 1.</b> Growth of &#8377;1 (log scale). For the long-short factor, the line compounds its excess return and the grey line the market's excess return; for the long-only portfolio, both compound total returns.</figcaption>
+</figure>
+<figure>
+<div class="chart short" id="chart-drawdown"></div>
+<figcaption><b>Figure 2.</b> Drawdown from the previous peak of the lines in Figure 1.</figcaption>
+</figure>
+<figure>
+<div class="chart tall" id="chart-calendar"></div>
+<figcaption><b>Figure 3.</b> Monthly returns of the chosen portfolio by year and month, in %. Blue is positive, red negative.</figcaption>
+</figure>
+<figure>
+<div class="chart" id="chart-heat"></div>
+<figcaption><b>Figure 4.</b> Every beta window for the chosen universe, <i>K</i>, <i>w</i>, weighting, portfolio, costs and sample: the Newey-West <i>t</i>-statistic of the mean excess return, with the mean in % a month in brackets.</figcaption>
+</figure>
+<p class="table-caption"><b>Table 2.</b> Holding period <i>K</i> against shrinkage <i>w</i> for the chosen windows: mean excess return in % a month, with the Newey-West <i>t</i>-statistic beneath.</p>
+<div class="table-wrap"><table id="table-kw"></table></div>
+<p class="note">All 864 variants (3 universes &times; 3 &times; 3 windows &times; 4 shrinkages &times; 4 holding periods &times; 2 weightings) are on this page. All 864 earn a positive mean before costs; 646 have <i>t</i> &gt; 2. The paper's own specification was fixed before any result was seen; the best of many variants should be treated with suspicion.</p>
+
+<h2>4. The paper's tables for India</h2>
+<h3>4.1 Beta deciles (the paper's Table III)</h3>
+<div class="inline-switch" id="decile-switch"></div>
+<p class="table-caption"><b>Table 3.</b> Ten portfolios sorted by beta and the BAB factor, the paper's settings, monthly rebalancing, before costs. Excess returns and alphas in % a month; alphas use the IIMA market, size, value and momentum factors, which end in December 2025. Newey-West <i>t</i>-statistics in brackets. The last row gives the paper's US four-factor alphas (Table III, p.41).</p>
+<div class="table-wrap"><table id="table-deciles"></table></div>
+<figure>
+<div class="chart" id="chart-alpha"></div>
+<figcaption><b>Figure 5.</b> Four-factor alpha by beta decile, India (blue, the decile set chosen above) and the United States (grey, the paper's Table III).</figcaption>
+</figure>
+<p>The shape matches the paper. Realised betas rise from 0.78 to 1.55 across the deciles, but excess returns do not rise with them, so alphas fall: the lowest-beta decile has a four-factor alpha of about 0.5% a month and the highest about &minus;0.7%. Weighted by traded value, the pattern is noisier and only the top decile is clearly negative, which is what the paper's appendix Table B9 leads one to expect: much of the factor's return comes from levering the low-beta side. The earlier Indian study by Agarwalla, Jacob, Varma and Vasudevan (2014), on BSE shares from 1998 to 2013, found a larger factor, 1.70% a month; their sample includes thousands of tiny shares that ours excludes, and our least-traded third alone earns about 1% a month.</p>
+
+<h3>4.2 BAB by universe, before and after costs</h3>
+<p class="table-caption"><b>Table 4.</b> The BAB factor with the paper's settings in each universe. After costs, A and B pay delivery costs and a 3.25% yearly lending fee on the short side (paper portfolios); C pays futures costs and the monthly roll.</p>
+<div class="table-wrap"><table id="table-universes"></table></div>
+
+<h3>4.3 Portfolios an Indian investor can hold</h3>
+<p class="table-caption"><b>Table 5.</b> Tradeable versions and benchmarks over common months. T1 is BAB in the futures universe held through stock futures; T2 the lowest against the highest beta fifth there, each scaled to a beta of one; L1 the equal-weighted lowest-beta fifth of the liquid 500; L2 its rank-weighted low-beta half; L3 is L1 plus a NIFTY futures position that lifts its beta to about one.</p>
+<div class="inline-switch" id="window-switch"></div>
+<div class="table-wrap"><table id="table-tradeable"></table></div>
+<p>The long-short portfolios that can be traded, T1 and T2, earn 0.39% and 0.46% a month before costs but nothing after them: holding about &#8377;1.9 of futures for each rupee of capital, rolled every month and rebalanced as betas change, costs about 0.4% a month. The long-only portfolios keep their returns, because they trade little, but they mainly earn the market's return with less risk: L1 has a beta of 0.77 and a Sharpe ratio of 0.46 against the NIFTY 500's 0.43. Levering L1 to a beta of one with NIFTY futures (L3) raises its return but leaves its alpha after costs near zero. NSE's low-volatility indices, which also hold low-risk large shares, did better than L1 from 2006.</p>
+
+<h2>5. Robustness</h2>
+<p class="table-caption"><b>Table 6.</b> BAB within thirds of median traded value (the paper's Table B3), and after dropping the least-traded shares or shares priced below &#8377;10, all NSE shares, before costs.</p>
+<div class="table-wrap"><table id="table-size"></table></div>
+<p class="table-caption"><b>Table 7.</b> BAB in sub-periods (the paper's Table B4), before costs.</p>
+<div class="inline-switch" id="sub-switch"></div>
+<div class="table-wrap"><table id="table-sub"></table></div>
+<p class="table-caption"><b>Table 8.</b> Beta compression (the paper's Table X). Months are split into thirds of stress seen up to then; the table gives the cross-sectional standard deviation of betas and the BAB factor's market beta in each third.</p>
+<div class="table-wrap"><table id="table-compression"></table></div>
+<p>As in the paper, betas bunch towards one in stressed months: their dispersion falls from 0.25 in calm months to 0.17 in the most volatile third (<i>t</i> = &minus;6.8). The paper's other prediction, that the factor's market beta rises with funding stress, is weak in India. The paper's TED-spread test of funding liquidity could not be repeated, for want of an Indian certificate-of-deposit series that can be downloaded.</p>
+<p class="table-caption"><b>Table 9.</b> Stress tests: a lending fee of 0%, 3.25% or 10% a year on the cash short side; a futures roll impact of 0%, 0.05% or 0.10% a side; and an extra loss of 30% or 100% charged to every share in the month it stopped trading (1,685 shares).</p>
+<div class="table-wrap"><table id="table-stress"></table></div>
+<figure>
+<div class="chart" id="chart-years"></div>
+<figcaption><b>Figure 6.</b> Calendar-year returns of the BAB factor (all NSE shares, paper's settings, before costs) and of the Indian market, size, value and momentum factors from the IIMA library. 1999 has nine months and 2026 ten.</figcaption>
+</figure>
+
+<h2>6. Where India differs from the paper</h2>
+<ul class="finding-list">
+<li><b>Short selling.</b> Outside about 200 shares with stock futures, a cash short needs securities lending, which covers a few hundred shares thinly. The factor in universes A and B is a research construct.</li>
+<li><b>History.</b> 27 years of factor returns against 86 in the paper, with about twice the volatility, so <i>t</i>-statistics are lower for the same Sharpe ratio.</li>
+<li><b>Size.</b> There is no market capitalisation history before 2024, so size groups and value weights use traded value.</li>
+<li><b>Dividends.</b> NSE's corporate action list is sparse before 2006, so early returns are close to price returns.</li>
+<li><b>Factors.</b> IIMA's factors end in December 2025 and include no liquidity factor.</li>
+<li><b>Futures.</b> Futures returns are taken as the share's excess return, with costs and the monthly roll charged but basis noise ignored.</li>
+</ul>
+
+<h2>7. Conclusion</h2>
+<p>The low-beta anomaly that Frazzini and Pedersen document is present in Indian shares, with a size and shape close to the US one before costs. It is, however, largely a feature of small and thinly traded shares and of the poor returns of the highest-beta shares, and the costs of building the leveraged long-short factor in India, through stock futures or securities lending, remove it. What remains for an investor is a long-only tilt to low-beta liquid shares, which delivered market-like returns with less risk; that is a reason to hold such a portfolio, not a source of alpha.</p>
+
+<h2>Declarations</h2>
+<p><b>Conflicts of interest.</b> The author may hold positions in the securities and indices discussed. Nothing on this page is investment advice.</p>
+<p><b>Data and code availability.</b> The code, tests and derived results are at <a href="https://github.com/pramodathani/Research-Paper-Frazzini-Pedersen-Betting-Against-Beta-India">github.com/pramodathani/Research-Paper-Frazzini-Pedersen-Betting-Against-Beta-India</a>. Exchange data are downloaded by the code from NSE's public archives and are not redistributed.</p>
+<p><b>Funding.</b> None.</p>
+
+<h2>References</h2>
+<div class="references">
+<p>Agarwalla, S. K., Jacob, J., Varma, J. R., and Vasudevan, E. (2014). Betting against beta in the Indian market. Working Paper 2014-07-01, Indian Institute of Management Ahmedabad.</p>
+<p>Agarwalla, S. K., Jacob, J., and Varma, J. R. Indian Fama-French and momentum factor data library. Indian Institute of Management Ahmedabad. https://faculty.iima.ac.in/iffm/Indian-Fama-French-Momentum/</p>
+<p>Black, F. (1972). Capital market equilibrium with restricted borrowing. <i>Journal of Business</i>, 45(3), 444&ndash;455.</p>
+<p>Black, F., Jensen, M. C., and Scholes, M. (1972). The capital asset pricing model: some empirical tests. In M. C. Jensen (Ed.), <i>Studies in the Theory of Capital Markets</i>. Praeger.</p>
+<p>Frazzini, A., and Pedersen, L. H. (2014). Betting against beta. <i>Journal of Financial Economics</i>, 111(1), 1&ndash;25. https://doi.org/10.1016/j.jfineco.2013.10.005</p>
+<p>Newey, W. K., and West, K. D. (1987). A simple, positive semi-definite, heteroskedasticity and autocorrelation consistent covariance matrix. <i>Econometrica</i>, 55(3), 703&ndash;708.</p>
+</div>
+
+<p class="footnote">Results are computed from monthly returns built by the study's code; every number on this page can be reproduced from the repository. Data to the end of <span data-fill="end_label">October 2026</span>.</p>
+
+</main>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
